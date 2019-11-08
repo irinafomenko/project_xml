@@ -1,0 +1,1 @@
+/usr/bin/c++.exe -g  -Wl,--enable-auto-import CMakeFiles/project_xml.dir/main.cpp.o  -o project_xml.exe -Wl,--out-implib,libproject_xml.dll.a -Wl,--major-image-version,0,--minor-image-version,0 

@@ -1,0 +1,3 @@
+/cygdrive/c/Users/ifomenko/CLionProjects/project_xml/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/cygdrive/c/Users/ifomenko/CLionProjects/project_xml/cmake-build-debug/CMakeFiles/project_xml.dir
+/cygdrive/c/Users/ifomenko/CLionProjects/project_xml/cmake-build-debug/CMakeFiles/edit_cache.dir
