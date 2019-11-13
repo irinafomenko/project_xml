@@ -5,6 +5,8 @@
 #include <vector>
 #include "rapidxml-1.13/rapidxml.hpp"
 #include <curl/curl.h>
+#include <queue>
+
 #pragma comment(lib,"libcurl")
 
 using namespace rapidxml;
@@ -16,6 +18,7 @@ static char errorBuffer[CURL_ERROR_SIZE];
 static string buffer_xml;
 //необходимые CURL объекты
 CURL *curl;
+bool flag_not_found = false;
 
 //функция обратного вызова
 static int writer(char *data, size_t size, size_t nmemb, string *buffer)
@@ -56,7 +59,10 @@ void download_xml()
         //определяем, куда выводить ошибки
         curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errorBuffer);
         //задаем опцию - получить страницу по адресу http://google.com
-        curl_easy_setopt(curl, CURLOPT_URL, "https://gist.githubusercontent.com/JSchaenzle/2726944/raw/c0c6f29f4b3161656ab58d4cae2b8e92239c79a8/beerJournal.xml");
+        //curl_easy_setopt(curl, CURLOPT_URL, "https://gist.githubusercontent.com/JSchaenzle/2726944/raw/c0c6f29f4b3161656ab58d4cae2b8e92239c79a8/beerJournal.xml");
+        //curl_easy_setopt(curl, CURLOPT_URL, "https://www.w3schools.com/XML/cd_catalog.xml");
+        curl_easy_setopt(curl, CURLOPT_URL, "http://producthelp.sdl.com/sdl%20trados%20studio/client_en/sample.xml");
+        //curl_easy_setopt(curl, CURLOPT_URL, "https://www.javatpoint.com/xmlpages/books.xml");
         //указываем прокси сервер
         curl_easy_setopt(curl, CURLOPT_PROXY, "proxy:8080");
         //задаем опцию отображение заголовка страницы
@@ -87,36 +93,51 @@ void download_xml()
     curl_easy_cleanup(curl);
 }
 
+void print_result(xml_node<> * node)
+{
+    cout << endl;
+    cout << "Name tag: " << node->name() << endl;
+    cout << "Value tag: " << node->value() << endl;
+    for (xml_attribute<> * att = node->first_attribute(); att; att = att->next_attribute())
+    {
+        cout << "Name attribute: " << att->name() << endl;
+        cout << "Value attribute: " << att->value() << endl;
+    }
+    flag_not_found = true;
+}
+
 void parsing_xml()
 {
-    cout << "Parsing my beer journal..." << endl;
+    string name_tag, value_tag;
+    cout << "Parsing..." << endl;
     xml_document<> doc;
     xml_node<> * root_node;
     // Read the xml file into a vector
     ifstream theFile ("file.xml");
+    //ifstream theFile ("C:/Users/ifomenko/CLionProjects/project_xml/beerJournal.xml");
     vector<char> buffer((istreambuf_iterator<char>(theFile)), istreambuf_iterator<char>());
     buffer.push_back('\0');
     // Parse the buffer using the xml file parsing library into doc
     doc.parse<0>(&buffer[0]);
     // Find our root node
-    root_node = doc.first_node("MyBeerJournal");
-    // Iterate over the brewerys
-    for (xml_node<> * brewery_node = root_node->first_node("Brewery"); brewery_node; brewery_node = brewery_node->next_sibling())
+    cout << "Enter name tag: ";
+    cin >> name_tag;
+    cin.ignore(32767, '\n'); // удаляем символ новой строки из входного потока данных
+    cout << "Enter value tag: ";
+    //cin >> value_tag;
+    getline(cin, value_tag);
+    root_node = doc.first_node();
+    if(root_node->name() == name_tag && root_node->value() == value_tag) {print_result(root_node);}
+    for (xml_node<> * child_node = root_node->first_node(); child_node; child_node = child_node->next_sibling())
     {
-        printf("I have visited %s in %s. ",
-               brewery_node->first_attribute("name")->value(),
-               brewery_node->first_attribute("location")->value());
-        // Interate over the beers
-        for(xml_node<> * beer_node = brewery_node->first_node("Beer"); beer_node; beer_node = beer_node->next_sibling())
+        if(child_node->name() == name_tag && child_node->value() == value_tag) {print_result(child_node);}
+        for(xml_node<> * children_node = child_node->first_node(); children_node; children_node = children_node->next_sibling())
         {
-            printf("On %s, I tried their %s which is a %s. ",
-                   beer_node->first_attribute("dateSampled")->value(),
-                   beer_node->first_attribute("name")->value(),
-                   beer_node->first_attribute("description")->value());
-            printf("I gave it the following review: %s", beer_node->value());
+            if(children_node->name() == name_tag && children_node->value() == value_tag) {print_result(children_node);}
         }
-        cout << endl;
+        //cout << endl;
     }
+    if(flag_not_found == false) {cout << endl << "Not found!" << endl;}
 }
 
 int main(void)
