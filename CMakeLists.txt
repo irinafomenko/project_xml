@@ -4,3 +4,4 @@ project(project_xml)
 set(CMAKE_CXX_STANDARD 14)
 
 add_executable(project_xml main.cpp)
+target_link_libraries(project_xml curl)
