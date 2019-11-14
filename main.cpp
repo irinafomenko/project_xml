@@ -76,20 +76,15 @@ void download_xml()
         //запускаем выполнение задачи
         result = curl_easy_perform(curl);
         //проверяем успешность выполнения операции
-        /*
         if (result == CURLE_OK)
         {
-            //выводим полученные данные на стандартный вывод (консоль)
-            cout << buffer_xml << "\n";
+            save_file_xml();
         }
-        //else
-         */
-        if(result != CURLE_OK)
+        else
         {
             //выводим сообщение об ошибке
             cout << "Ошибка! " << errorBuffer << endl;
         }
-        save_file_xml();
     }
     //завершаем сессию
     curl_easy_cleanup(curl);
