@@ -105,6 +105,7 @@ void print_result(xml_node<> * node)
 
 void search_with_value(string name_tag, string value_tag)
 {
+    // Find our root node
     xml_node<> * root_node;
     root_node = doc.first_node();
     if(root_node->name() == name_tag && root_node->value() == value_tag) {print_result(root_node);}
@@ -120,6 +121,7 @@ void search_with_value(string name_tag, string value_tag)
 }
 void search_without_value(string name_tag)
 {
+    // Find our root node
     xml_node<> * root_node;
     root_node = doc.first_node();
     if(root_node->name() == name_tag) {print_result(root_node);}
@@ -137,16 +139,6 @@ void search_without_value(string name_tag)
 void parsing_xml()
 {
     string name_tag, value_tag;
-    cout << "Parsing..." << endl;
-    // Read the xml file into a vector
-    ifstream theFile ("file.xml");
-    //ifstream theFile ("C:/Users/ifomenko/CLionProjects/project_xml/beerJournal.xml");
-    vector<char> buffer((istreambuf_iterator<char>(theFile)), istreambuf_iterator<char>());
-    buffer.push_back('\0');
-    // Parse the buffer using the xml file parsing library into doc
-    doc.parse<0>(&buffer[0]);
-    //doc.parse<parse_declaration_node | parse_no_data_nodes>(&buffer[0]);
-    // Find our root node
     cout << "Enter name tag: ";
     cin >> name_tag;
     cin.ignore(32767, '\n'); // удаляем символ новой строки из входного потока данных
@@ -154,10 +146,26 @@ void parsing_xml()
     //cin >> value_tag;
     getline(cin, value_tag);
 
-    if(!value_tag.empty()) {search_with_value(name_tag, value_tag);}
-    else {search_without_value(name_tag);}
+    cout << "Parsing..." << endl;
+    // Read the xml file into a vector
+    ifstream theFile ("file.xml");
+    //ifstream theFile ("C:/Users/ifomenko/CLionProjects/project_xml/beerJournal.xml");
+    vector<char> buffer((istreambuf_iterator<char>(theFile)), istreambuf_iterator<char>());
+    buffer.push_back('\0');
+    try
+    {
+        // Parse the buffer using the xml file parsing library into doc
+        doc.parse<0>(&buffer[0]);
+        //doc.parse<parse_declaration_node | parse_no_data_nodes>(&buffer[0]);
+        if(!value_tag.empty()) {search_with_value(name_tag, value_tag);}
+        else {search_without_value(name_tag);}
 
-    if(flag_not_found == false) {cout << endl << "Not found!" << endl;}
+        if(flag_not_found == false) {cout << endl << "Not found!" << endl;}
+    }
+    catch (const rapidxml::parse_error& e)
+    {
+        std::cerr << "Parse error was: " << e.what() << std::endl;
+    }
 }
 
 int main()
