@@ -19,6 +19,8 @@ static string buffer_xml;
 //необходимые CURL объекты
 CURL *curl;
 bool flag_not_found = false;
+//xml file
+xml_document<> doc;
 
 //функция обратного вызова
 static int writer(char *data, size_t size, size_t nmemb, string *buffer)
@@ -106,26 +108,9 @@ void print_result(xml_node<> * node)
     flag_not_found = true;
 }
 
-void parsing_xml()
+void search_with_value(string name_tag, string value_tag)
 {
-    string name_tag, value_tag;
-    cout << "Parsing..." << endl;
-    xml_document<> doc;
     xml_node<> * root_node;
-    // Read the xml file into a vector
-    ifstream theFile ("file.xml");
-    //ifstream theFile ("C:/Users/ifomenko/CLionProjects/project_xml/beerJournal.xml");
-    vector<char> buffer((istreambuf_iterator<char>(theFile)), istreambuf_iterator<char>());
-    buffer.push_back('\0');
-    // Parse the buffer using the xml file parsing library into doc
-    doc.parse<0>(&buffer[0]);
-    // Find our root node
-    cout << "Enter name tag: ";
-    cin >> name_tag;
-    cin.ignore(32767, '\n'); // удаляем символ новой строки из входного потока данных
-    cout << "Enter value tag: ";
-    //cin >> value_tag;
-    getline(cin, value_tag);
     root_node = doc.first_node();
     if(root_node->name() == name_tag && root_node->value() == value_tag) {print_result(root_node);}
     for (xml_node<> * child_node = root_node->first_node(); child_node; child_node = child_node->next_sibling())
@@ -137,6 +122,46 @@ void parsing_xml()
         }
         //cout << endl;
     }
+}
+void search_without_value(string name_tag)
+{
+    xml_node<> * root_node;
+    root_node = doc.first_node();
+    if(root_node->name() == name_tag) {print_result(root_node);}
+    for (xml_node<> * child_node = root_node->first_node(); child_node; child_node = child_node->next_sibling())
+    {
+        if(child_node->name() == name_tag) {print_result(child_node);}
+        for(xml_node<> * children_node = child_node->first_node(); children_node; children_node = children_node->next_sibling())
+        {
+            if(children_node->name() == name_tag) {print_result(children_node);}
+        }
+        //cout << endl;
+    }
+}
+
+void parsing_xml()
+{
+    string name_tag, value_tag;
+    cout << "Parsing..." << endl;
+    // Read the xml file into a vector
+    ifstream theFile ("file.xml");
+    //ifstream theFile ("C:/Users/ifomenko/CLionProjects/project_xml/beerJournal.xml");
+    vector<char> buffer((istreambuf_iterator<char>(theFile)), istreambuf_iterator<char>());
+    buffer.push_back('\0');
+    // Parse the buffer using the xml file parsing library into doc
+    doc.parse<0>(&buffer[0]);
+    //doc.parse<parse_declaration_node | parse_no_data_nodes>(&buffer[0]);
+    // Find our root node
+    cout << "Enter name tag: ";
+    cin >> name_tag;
+    cin.ignore(32767, '\n'); // удаляем символ новой строки из входного потока данных
+    cout << "Enter value tag: ";
+    //cin >> value_tag;
+    getline(cin, value_tag);
+
+    if(!value_tag.empty()) {search_with_value(name_tag, value_tag);}
+    else {search_without_value(name_tag);}
+
     if(flag_not_found == false) {cout << endl << "Not found!" << endl;}
 }
 
