@@ -63,8 +63,8 @@ void download_xml()
         //задаем опцию - получить страницу по адресу http://google.com
         //curl_easy_setopt(curl, CURLOPT_URL, "https://gist.githubusercontent.com/JSchaenzle/2726944/raw/c0c6f29f4b3161656ab58d4cae2b8e92239c79a8/beerJournal.xml");
         //curl_easy_setopt(curl, CURLOPT_URL, "https://www.w3schools.com/XML/cd_catalog.xml");
-        curl_easy_setopt(curl, CURLOPT_URL, "http://producthelp.sdl.com/sdl%20trados%20studio/client_en/sample.xml");
-        //curl_easy_setopt(curl, CURLOPT_URL, "https://www.javatpoint.com/xmlpages/books.xml");
+        //curl_easy_setopt(curl, CURLOPT_URL, "http://producthelp.sdl.com/sdl%20trados%20studio/client_en/sample.xml");
+        curl_easy_setopt(curl, CURLOPT_URL, "https://www.javatpoint.com/xmlpages/books.xml");
         //указываем прокси сервер
         curl_easy_setopt(curl, CURLOPT_PROXY, "proxy:8080");
         //задаем опцию отображение заголовка страницы
@@ -84,12 +84,12 @@ void download_xml()
         }
         //else
          */
-        save_file_xml();
         if(result != CURLE_OK)
         {
             //выводим сообщение об ошибке
             cout << "Ошибка! " << errorBuffer << endl;
         }
+        save_file_xml();
     }
     //завершаем сессию
     curl_easy_cleanup(curl);
@@ -165,7 +165,7 @@ void parsing_xml()
     if(flag_not_found == false) {cout << endl << "Not found!" << endl;}
 }
 
-int main(void)
+int main()
 {
     download_xml();
     parsing_xml();
