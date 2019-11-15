@@ -66,7 +66,7 @@ void download_xml()
         //curl_easy_setopt(curl, CURLOPT_URL, "http://producthelp.sdl.com/sdl%20trados%20studio/client_en/sample.xml");
         curl_easy_setopt(curl, CURLOPT_URL, "https://www.javatpoint.com/xmlpages/books.xml");
         //указываем прокси сервер
-        curl_easy_setopt(curl, CURLOPT_PROXY, "proxy:8080");
+        curl_easy_setopt(curl, CURLOPT_PROXY, "proxy:8080"); //без прокси не работает
         //задаем опцию отображение заголовка страницы
         //curl_easy_setopt(curl, CURLOPT_HEADER, 1);
         //указываем функцию обратного вызова для записи получаемых данных
@@ -103,36 +103,21 @@ void print_result(xml_node<> * node)
     flag_not_found = true;
 }
 
-void search_with_value(string name_tag, string value_tag)
+void search_with_value(xml_node<> * root_node, string name_tag, string value_tag = "\n")
 {
-    // Find our root node
-    xml_node<> * root_node;
-    root_node = doc.first_node();
-    if(root_node->name() == name_tag && root_node->value() == value_tag) {print_result(root_node);}
     for (xml_node<> * child_node = root_node->first_node(); child_node; child_node = child_node->next_sibling())
     {
         if(child_node->name() == name_tag && child_node->value() == value_tag) {print_result(child_node);}
-        for(xml_node<> * children_node = child_node->first_node(); children_node; children_node = children_node->next_sibling())
-        {
-            if(children_node->name() == name_tag && children_node->value() == value_tag) {print_result(children_node);}
-        }
-        //cout << endl;
+        search_with_value(child_node, name_tag, value_tag);
     }
 }
-void search_without_value(string name_tag)
+
+void search_without_value(xml_node<> * root_node, string name_tag)
 {
-    // Find our root node
-    xml_node<> * root_node;
-    root_node = doc.first_node();
-    if(root_node->name() == name_tag) {print_result(root_node);}
     for (xml_node<> * child_node = root_node->first_node(); child_node; child_node = child_node->next_sibling())
     {
         if(child_node->name() == name_tag) {print_result(child_node);}
-        for(xml_node<> * children_node = child_node->first_node(); children_node; children_node = children_node->next_sibling())
-        {
-            if(children_node->name() == name_tag) {print_result(children_node);}
-        }
-        //cout << endl;
+        search_without_value(child_node, name_tag);
     }
 }
 
@@ -156,9 +141,10 @@ void parsing_xml()
     {
         // Parse the buffer using the xml file parsing library into doc
         doc.parse<0>(&buffer[0]);
+        xml_node<> * root_node = doc.first_node();;
         //doc.parse<parse_declaration_node | parse_no_data_nodes>(&buffer[0]);
-        if(!value_tag.empty()) {search_with_value(name_tag, value_tag);}
-        else {search_without_value(name_tag);}
+        if(!value_tag.empty()) {search_with_value(root_node, name_tag, value_tag);}
+        else {search_without_value(root_node, name_tag);}
 
         if(flag_not_found == false) {cout << endl << "Not found!" << endl;}
     }
