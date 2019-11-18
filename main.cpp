@@ -109,15 +109,20 @@ void search_with_value(xml_node<> * root_node, string name_tag = "", string valu
     for (root_node; root_node; root_node = root_node->next_sibling())
     {
         xml_node<> * child_node = root_node->first_node();
-        if(value_tag.empty())
+        if(name_tag.empty() && value_tag.empty()) //выводим все, если и название и значение тега пустые
         {
-            if(root_node->name() == name_tag) {print_result(root_node);}
-            //print_result(root_node);
+            print_result(root_node);
             search_with_value(child_node, name_tag, value_tag);
         }
         else if(name_tag.empty())
         {
             if(root_node->name() != name_tag && root_node->value() == value_tag) {print_result(root_node);}
+            search_with_value(child_node, name_tag, value_tag);
+        }
+        else if(value_tag.empty())
+        {
+            if(root_node->name() == name_tag) {print_result(root_node);}
+            //print_result(root_node);
             search_with_value(child_node, name_tag, value_tag);
         }
         else
