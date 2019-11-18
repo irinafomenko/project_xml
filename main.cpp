@@ -65,6 +65,7 @@ void download_xml()
         //curl_easy_setopt(curl, CURLOPT_URL, "https://www.w3schools.com/XML/cd_catalog.xml");
         //curl_easy_setopt(curl, CURLOPT_URL, "http://producthelp.sdl.com/sdl%20trados%20studio/client_en/sample.xml");
         curl_easy_setopt(curl, CURLOPT_URL, "https://www.javatpoint.com/xmlpages/books.xml");
+        //curl_easy_setopt(curl, CURLOPT_URL, "http://txt2html.sourceforge.net/sample.txt");
         //указываем прокси сервер
         curl_easy_setopt(curl, CURLOPT_PROXY, "proxy:8080"); //без прокси не работает
         //задаем опцию отображение заголовка страницы
@@ -103,21 +104,27 @@ void print_result(xml_node<> * node)
     flag_not_found = true;
 }
 
-void search_with_value(xml_node<> * root_node, string name_tag, string value_tag = "\n")
+void search_with_value(xml_node<> * root_node, string name_tag = "", string value_tag = "")
 {
-    for (xml_node<> * child_node = root_node->first_node(); child_node; child_node = child_node->next_sibling())
+    for (root_node; root_node; root_node = root_node->next_sibling())
     {
-        if(child_node->name() == name_tag && child_node->value() == value_tag) {print_result(child_node);}
-        search_with_value(child_node, name_tag, value_tag);
-    }
-}
-
-void search_without_value(xml_node<> * root_node, string name_tag)
-{
-    for (xml_node<> * child_node = root_node->first_node(); child_node; child_node = child_node->next_sibling())
-    {
-        if(child_node->name() == name_tag) {print_result(child_node);}
-        search_without_value(child_node, name_tag);
+        xml_node<> * child_node = root_node->first_node();
+        if(value_tag.empty())
+        {
+            if(root_node->name() == name_tag) {print_result(root_node);}
+            //print_result(root_node);
+            search_with_value(child_node, name_tag, value_tag);
+        }
+        else if(name_tag.empty())
+        {
+            if(root_node->name() != name_tag && root_node->value() == value_tag) {print_result(root_node);}
+            search_with_value(child_node, name_tag, value_tag);
+        }
+        else
+        {
+            if(root_node->name() == name_tag && root_node->value() == value_tag) {print_result(root_node);}
+            search_with_value(child_node, name_tag, value_tag);
+        }
     }
 }
 
@@ -125,10 +132,8 @@ void parsing_xml()
 {
     string name_tag, value_tag;
     cout << "Enter name tag: ";
-    cin >> name_tag;
-    cin.ignore(32767, '\n'); // удаляем символ новой строки из входного потока данных
+    getline(cin, name_tag);
     cout << "Enter value tag: ";
-    //cin >> value_tag;
     getline(cin, value_tag);
 
     cout << "Parsing..." << endl;
@@ -142,15 +147,13 @@ void parsing_xml()
         // Parse the buffer using the xml file parsing library into doc
         doc.parse<0>(&buffer[0]);
         xml_node<> * root_node = doc.first_node();;
-        //doc.parse<parse_declaration_node | parse_no_data_nodes>(&buffer[0]);
-        if(!value_tag.empty()) {search_with_value(root_node, name_tag, value_tag);}
-        else {search_without_value(root_node, name_tag);}
+        search_with_value(root_node, name_tag, value_tag);
 
         if(flag_not_found == false) {cout << endl << "Not found!" << endl;}
     }
-    catch (const rapidxml::parse_error& e)
+    catch (const rapidxml::parse_error& e) //работает
     {
-        std::cerr << "Parse error was: " << e.what() << std::endl;
+        cerr << "Parse error was: " << e.what() << std::endl;
     }
 }
 
